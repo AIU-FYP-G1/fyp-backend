@@ -3,7 +3,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.views import TokenObtainPairView
 from django.contrib.auth import get_user_model
 from .models import Profile
-from .serializers import UserSerializer
+from .serializers import UserSerializer, CustomTokenObtainPairSerializer
 
 
 class SignUpView(generics.CreateAPIView):
@@ -16,16 +16,11 @@ class SignUpView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
-        # Create associated profile
-        Profile.objects.create(
-            user=user,
-            first_name=request.data.get('first_name', ''),
-            last_name=request.data.get('last_name', ''),
-            phone_number=request.data.get('phone_number', '')
-        )
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response({
+            'user': UserSerializer(user).data,
+            'message': 'User registered successfully'
+        }, status=status.HTTP_201_CREATED)
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
-    pass
+    serializer_class = CustomTokenObtainPairSerializer

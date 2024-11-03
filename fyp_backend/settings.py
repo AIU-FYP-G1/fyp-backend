@@ -36,6 +36,7 @@ INSTALLED_APPS = [
 
     # LOCAL
     'accounts',
+    'patients',
 
     # THIRD PARTY
     'rest_framework',

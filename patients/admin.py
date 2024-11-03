@@ -1,8 +1,8 @@
 from django.contrib import admin
 
-from accounts.models import *
+from patients.models import *
 
-models = [Profile]
+models = [Patient, Diagnosis]
 
 for model in models:
     admin.site.register(model)

@@ -10,6 +10,9 @@ class PatientSerializer(serializers.ModelSerializer):
 
 
 class DiagnosisSerializer(serializers.ModelSerializer):
+    echocardiogram = serializers.FileField(required=True)
+
     class Meta:
         model = Diagnosis
         fields = '__all__'
+        read_only_fields = 'ejection_fraction'

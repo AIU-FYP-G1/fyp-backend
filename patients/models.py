@@ -30,6 +30,7 @@ class Diagnosis(models.Model):
     prescription = models.TextField()
     notes = models.TextField(blank=True)
     follow_up_date = models.DateField(null=True, blank=True)
+    ef_prediction = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return f"Diagnosis for {self.patient} on {self.diagnosis_date.date()}"

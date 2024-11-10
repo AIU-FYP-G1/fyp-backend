@@ -25,7 +25,7 @@ class CustomUserAdmin(UserAdmin):
     ordering = ('email',)
 
 
-models = [Profile]
+models = [Profile, User]
 
 for model in models:
     admin.site.register(model)

@@ -1,3 +1,5 @@
+import random
+
 import requests
 from rest_framework import generics, permissions
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -39,9 +41,10 @@ class DiagnosisListCreateView(generics.ListCreateAPIView):
         return Diagnosis.objects.filter(
             patient_id=patient_id,
             patient__doctor=self.request.user.profile
-        )
+        ).order_by('-diagnosis_date')
 
     def perform_create(self, serializer):
+        print(self.kwargs)
         patient_id = self.kwargs.get('patient_id')
         patient = Patient.objects.get(id=patient_id, doctor=self.request.user.profile)
 
@@ -62,7 +65,7 @@ class DiagnosisListCreateView(generics.ListCreateAPIView):
             # analysis_results = response.json()
 
             # diagnosis.ejection_fraction = analysis_results.get('ejection_fraction')
-            placeholder_ef_value = 45
+            placeholder_ef_value = random.randint(50, 100)
             diagnosis.ejection_fraction = placeholder_ef_value
             diagnosis.save()
 

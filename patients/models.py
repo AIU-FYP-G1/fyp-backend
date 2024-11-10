@@ -31,9 +31,9 @@ class Patient(models.Model):
 class Diagnosis(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='diagnoses')
     diagnosis_date = models.DateTimeField(auto_now_add=True)
-    symptoms = models.TextField()
-    diagnosis = models.TextField()
-    prescription = models.TextField()
+    symptoms = models.TextField(default='')
+    diagnosis = models.TextField(default='')
+    prescription = models.TextField(default='')
     notes = models.TextField(blank=True)
     follow_up_date = models.DateField(null=True, blank=True)
     ejection_fraction = models.FloatField(null=True, blank=True)

@@ -12,7 +12,7 @@ class PatientSerializer(serializers.ModelSerializer):
 class DiagnosisSerializer(serializers.ModelSerializer):
     echocardiogram = serializers.FileField(required=True)
     patient = serializers.PrimaryKeyRelatedField(read_only=True)
-    diagnosis_date = serializers.DateTimeField(format="%Y-%m-%d**%H:%M:%S", required=False)
+    diagnosis_date = serializers.DateTimeField(format="%Y-%m-%d %H:%M:%S", required=False)
 
     class Meta:
         model = Diagnosis

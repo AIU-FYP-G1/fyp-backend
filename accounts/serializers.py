@@ -44,8 +44,16 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Profile
-        fields = ('id', 'email', 'full_name', 'phone_number', 'specialization')
+        fields = "__all__"
 
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     username_field = 'email'
+
+
+class PasswordChangeSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+
+    def validate_new_password(self, value):
+        return value

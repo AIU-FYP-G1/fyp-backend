@@ -4,7 +4,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 
-from accounts.views import SignUpView, CustomTokenObtainPairView
+from accounts.views import SignUpView, CustomTokenObtainPairView, ProfileUpdateView, ChangePasswordView
 from fyp_backend import settings
 from patients.views import PatientListCreateView, PatientDetailView, DiagnosisListCreateView, DiagnosisDetailView
 
@@ -17,6 +17,8 @@ urlpatterns = [
     path('signup/', SignUpView.as_view(), name='signup'),
     path('login/', CustomTokenObtainPairView.as_view(), name='login'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path('profile/', ProfileUpdateView.as_view(), name='profile-update'),
+    path('password/', ChangePasswordView.as_view(), name='change-password'),
 
     path('patients/', PatientListCreateView.as_view(), name='patient-list-create'),
     path('patients/<int:pk>/', PatientDetailView.as_view(), name='patient-detail'),

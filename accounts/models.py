@@ -60,6 +60,7 @@ class Profile(models.Model):
     full_name = models.CharField(max_length=200, default='')
     phone_number = models.CharField(max_length=15)
     specialization = models.CharField(max_length=100, blank=True)
+    profile_picture = models.FileField(upload_to='profiles/', default='profiles/default-avatar.jpg')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

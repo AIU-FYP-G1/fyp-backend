@@ -65,7 +65,6 @@ class ChangePasswordView(generics.UpdateAPIView):
     serializer_class = PasswordChangeSerializer
 
     def get_object(self):
-        # Fetch the currently logged-in user
         return self.request.user
 
     def update(self, request, *args, **kwargs):

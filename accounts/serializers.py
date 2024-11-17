@@ -50,6 +50,15 @@ class ProfileSerializer(serializers.ModelSerializer):
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     username_field = 'email'
 
+    def validate(self, attrs):
+        try:
+            data = super().validate(attrs)
+            return data
+        except Exception as e:
+            raise serializers.ValidationError(
+                {'error': 'Invalid credentials or inactive user'}
+            )
+
 
 class PasswordChangeSerializer(serializers.Serializer):
     old_password = serializers.CharField(required=True)

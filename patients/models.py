@@ -32,7 +32,6 @@ class Diagnosis(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, related_name='diagnoses')
     diagnosis_date = models.DateTimeField(auto_now_add=True)
     symptoms = models.TextField(default='')
-    diagnosis = models.TextField(default='')
     prescription = models.TextField(default='')
     notes = models.TextField(blank=True)
     follow_up_date = models.DateField(null=True, blank=True)
@@ -47,3 +46,12 @@ class Diagnosis(models.Model):
             if os.path.isfile(self.echocardiogram.path):
                 os.remove(self.echocardiogram.path)
         super().delete(*args, **kwargs)
+
+
+class Interpretation(models.Model):
+    diagnosis = models.ForeignKey(Diagnosis, on_delete=models.CASCADE, related_name='interpretations')
+    note = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Interpretation for {self.diagnosis} - {self.created_at}"

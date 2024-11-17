@@ -4,7 +4,7 @@ import requests
 from rest_framework import generics, permissions
 from rest_framework.parsers import MultiPartParser, FormParser
 
-from patients.models import Patient, Diagnosis
+from patients.models import Patient, Diagnosis, Interpretation
 from patients.serializers import PatientSerializer, DiagnosisSerializer
 
 
@@ -41,19 +41,37 @@ class DiagnosisListCreateView(generics.ListCreateAPIView):
         return Diagnosis.objects.filter(
             patient_id=patient_id,
             patient__doctor=self.request.user.profile
-        ).order_by('-diagnosis_date')
+        ).prefetch_related('interpretations').order_by('-diagnosis_date')
 
     def perform_create(self, serializer):
-        print(self.kwargs)
         patient_id = self.kwargs.get('patient_id')
         patient = Patient.objects.get(id=patient_id, doctor=self.request.user.profile)
 
         diagnosis = serializer.save(patient=patient)
 
+        self.create_fake_interpretations(diagnosis)
+
         try:
             self.analyze_echo(diagnosis)
         except Exception as e:
             print(f"Error analyzing echo: {str(e)}")
+
+    def create_fake_interpretations(self, diagnosis):
+        num_interpretations = random.randint(2, 3)
+        fake_interpretations = [
+            "Normal sinus rhythm with no significant abnormalities",
+            "Mild left ventricular hypertrophy noted",
+            "Trace mitral regurgitation present",
+            "Normal systolic function with preserved ejection fraction",
+            "Minor wall motion abnormalities in inferior wall"
+        ]
+
+        for i in range(num_interpretations):
+            interpretation = random.choice(fake_interpretations)
+            Interpretation.objects.create(
+                diagnosis=diagnosis,
+                note=interpretation
+            )
 
     def analyze_echo(self, diagnosis):
         try:

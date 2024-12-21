@@ -1,7 +1,6 @@
 import os
 
 import numpy as np
-import pandas as pd
 import tensorflow as tf
 from keras import Model
 from keras.src.applications.vgg16 import VGG16

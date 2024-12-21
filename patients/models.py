@@ -30,7 +30,7 @@ class Patient(models.Model):
         if self.date_of_birth:
             return (self.date_of_birth.today() - self.date_of_birth).days // 365
         else:
-            return 0
+            return 1
 
     def __str__(self):
         return self.full_name

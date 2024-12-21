@@ -18,6 +18,7 @@ class Patient(models.Model):
     doctor = models.ForeignKey(Profile, on_delete=models.SET_NULL, null=True, related_name='patients')
     full_name = models.CharField(max_length=200, default='')
     date_of_birth = models.DateField(null=True, blank=True)
+    patient_id = models.CharField(max_length=50, unique=True, null=True, blank=True)
     gender = models.CharField(max_length=1, choices=GENDER_CHOICES)
     weight = models.FloatField(null=True, blank=True)
     height = models.FloatField(null=True, blank=True)

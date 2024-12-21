@@ -1,16 +1,19 @@
-import pandas as pd
+import os
 
 import numpy as np
+import pandas as pd
 import tensorflow as tf
 from keras import Model
 from keras.src.applications.vgg16 import VGG16
 import cv2
 from keras.src.saving import load_model
 
+from fyp_backend import settings
+
 
 class EFPredictionPipeline:
-    a4c_model_path = './models/a4c_model.keras'
-    psax_model_path = './models/psax_model.keras'
+    a4c_model_path = os.path.join(settings.BASE_DIR, 'static', 'models', 'a4c_model.keras')
+    psax_model_path = os.path.join(settings.BASE_DIR, 'static', 'models', 'psax_model.keras')
 
     def __init__(self, view='a4c', frame_shape=(224, 224, 3), sequence_length=30):
         base_model = VGG16(weights='imagenet', include_top=False, input_shape=frame_shape)
@@ -88,7 +91,7 @@ class EFPredictionPipeline:
 
         age_encoding = [1 if i == age_idx else 0 for i in range(len(AGE_CATEGORIES))]
 
-        view_value = 1 if self.view == "A4C" else 0
+        view_value = 1 if self.view == "a4c" else 0
 
         numerical_features = [
             demographic_data['age'],
@@ -123,8 +126,9 @@ class EFPredictionPipeline:
         return np.array(all_features)
 
     def predict_ef(self, video_path, demographic_data, volume_tracings, interval=1):
+        video_path = os.path.join(settings.MEDIA_ROOT, str(video_path))
         video_features = self.extract_video_features(video_path, interval)
-        demographic_features = self.process_demographic_data(demographic_data, volume_tracings, 'A4C')
+        demographic_features = self.process_demographic_data(demographic_data, volume_tracings)
 
         combined_input = {
             'input_layer': np.expand_dims(video_features, axis=0),
@@ -132,5 +136,4 @@ class EFPredictionPipeline:
         }
 
         ef_prediction = self.lstm_model.predict(combined_input)
-
-        return float(ef_prediction[0][0])
+        return int(ef_prediction[0][0])

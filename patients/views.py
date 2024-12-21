@@ -2,6 +2,7 @@ import random
 
 import numpy as np
 import pandas as pd
+from pygments.lexers import q
 from rest_framework import generics, permissions
 from rest_framework.parsers import MultiPartParser, FormParser
 
@@ -77,16 +78,13 @@ class DiagnosisListCreateView(generics.ListCreateAPIView):
 
     def analyze_echo(self, diagnosis):
         try:
-
             default_view = 'a4c'
-
             pipeline = EFPredictionPipeline(view=default_view)
 
             demo_data = {
-                'age': 65,
-                'sex': 1,
-                'weight': 70,
-                'height': 170,
+                'age': diagnosis.patient.get_age(),
+                'weight': diagnosis.patient.weight if diagnosis.patient.weight else 70,
+                'height': diagnosis.patient.height if diagnosis.patient.height else 180,
             }
 
             volume_tracings = pd.DataFrame({

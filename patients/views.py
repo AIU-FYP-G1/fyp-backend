@@ -1,9 +1,11 @@
 import random
 
-import requests
+import numpy as np
+import pandas as pd
 from rest_framework import generics, permissions
 from rest_framework.parsers import MultiPartParser, FormParser
 
+from patients.prediction.EFPredictor import EFPredictionPipeline
 from patients.models import Patient, Diagnosis, Interpretation
 from patients.serializers import PatientSerializer, DiagnosisSerializer
 
@@ -75,16 +77,26 @@ class DiagnosisListCreateView(generics.ListCreateAPIView):
 
     def analyze_echo(self, diagnosis):
         try:
-            # files = {'file': diagnosis.echocardiogram.open()}
 
-            # response = requests.post(self.ECHO_ANALYSIS_URL, files=files)
-            # response.raise_for_status()
-            #
-            # analysis_results = response.json()
+            default_view = 'a4c'
 
-            # diagnosis.ejection_fraction = analysis_results.get('ejection_fraction')
-            placeholder_ef_value = random.randint(50, 100)
-            diagnosis.ejection_fraction = placeholder_ef_value
+            pipeline = EFPredictionPipeline(view=default_view)
+
+            demo_data = {
+                'age': 65,
+                'sex': 1,
+                'weight': 70,
+                'height': 170,
+            }
+
+            volume_tracings = pd.DataFrame({
+                'X': np.random.normal(100, 10, 100),
+                'Y': np.random.normal(100, 10, 100)
+            })
+
+            ejection_fraction = pipeline.predict_ef(diagnosis.echocardiogram, demo_data, volume_tracings)
+
+            diagnosis.ejection_fraction = ejection_fraction
             diagnosis.save()
 
         finally:

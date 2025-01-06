@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -64,6 +65,13 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
     ],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Ejection Fraction Prediction API',
+    'DESCRIPTION': 'DESC',
+    'VERSION': '1.0.0',
 }
 
 AUTHENTICATION_BACKENDS = (

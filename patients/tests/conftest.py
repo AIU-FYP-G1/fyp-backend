@@ -3,6 +3,7 @@ import shutil
 import os
 from django.conf import settings
 
+
 @pytest.fixture(autouse=True)
 def cleanup_media():
     """Cleanup all test media files after each test"""
@@ -11,6 +12,7 @@ def cleanup_media():
         shutil.rmtree(settings.MEDIA_ROOT, ignore_errors=True)
     except Exception as e:
         print(f"Error cleaning up media files: {e}")
+
 
 @pytest.fixture(autouse=True)
 def cleanup_test_files():

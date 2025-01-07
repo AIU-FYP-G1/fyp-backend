@@ -24,7 +24,8 @@ SECRET_KEY = 'django-insecure-1a&8n+%@rh@3zw0a83wzvx0fybl3h3(^ddil#j6bm=o(anjwa-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '172.18.0.1', '172.16.189.1']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '172.18.0.1', '172.16.189.1', 'fyp-backend-production-3c78.up.railway.app']
+CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
 
 INSTALLED_APPS = [

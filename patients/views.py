@@ -59,25 +59,51 @@ class DiagnosisListCreateView(generics.ListCreateAPIView):
 
         diagnosis = serializer.save(patient=patient)
 
-        self.create_fake_interpretations(diagnosis)
+        self.create_interpretations(diagnosis)
 
         try:
             self.analyze_echo(diagnosis)
         except Exception as e:
             print(f"Error analyzing echo: {str(e)}")
 
-    def create_fake_interpretations(self, diagnosis):
-        num_interpretations = random.randint(2, 3)
-        fake_interpretations = [
-            "Normal sinus rhythm with no significant abnormalities",
-            "Mild left ventricular hypertrophy noted",
-            "Trace mitral regurgitation present",
-            "Normal systolic function with preserved ejection fraction",
-            "Minor wall motion abnormalities in inferior wall"
-        ]
+    def create_interpretations(self, diagnosis):
+        ef = diagnosis.ejection_fraction
 
-        for i in range(num_interpretations):
-            interpretation = random.choice(fake_interpretations)
+        if ef >= 75:
+            interpretations = [
+                "Dangerously elevated ejection fraction (≥75%) suggesting possible Hypertrophic Cardiomyopathy",
+                "High risk condition requiring immediate attention due to potential cardiac arrest risk",
+                "Impaired ventricular filling due to extremely high ejection fraction"
+            ]
+        elif 50 <= ef <= 70:
+            interpretations = [
+                f"Normal ejection fraction ({ef}%) indicating preserved systolic function",
+                "Heart pumping function within normal range",
+                "Consider monitoring for HFpEF despite normal ejection fraction"
+            ]
+        elif 41 <= ef <= 49:
+            interpretations = [
+                f"Borderline low ejection fraction ({ef}%) indicating mild systolic dysfunction",
+                "May experience mild symptoms during physical activity",
+                "Regular monitoring and follow-up recommended"
+            ]
+        elif 30 <= ef <= 40:
+            interpretations = [
+                f"Moderately abnormal ejection fraction ({ef}%) indicating significant dysfunction",
+                "Patient may experience symptoms even at rest",
+                "Close monitoring and therapy adjustment may be needed"
+            ]
+        else:  # ef < 30
+            interpretations = [
+                f"Severely abnormal ejection fraction ({ef}%) indicating critical cardiac dysfunction",
+                "High risk condition requiring immediate medical attention",
+                "Patient likely experiencing severe symptoms with risk of cardiac arrest"
+            ]
+
+        num_interpretations = random.randint(2, 3)
+        selected_interpretations = random.sample(interpretations, num_interpretations)
+
+        for interpretation in selected_interpretations:
             Interpretation.objects.create(
                 diagnosis=diagnosis,
                 note=interpretation

@@ -28,6 +28,10 @@ ALLOWED_HOSTS = ['localhost', '127.0.0.1', '172.18.0.1', '172.16.189.1', 'fyp-ba
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = True
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://fyp-backend-production-3c78.up.railway.app'
+]
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

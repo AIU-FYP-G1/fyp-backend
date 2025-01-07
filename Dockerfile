@@ -14,4 +14,4 @@ RUN pip install -r requirements.txt
 COPY . .
 
 # Command to run the application
-CMD ["python", "manage.py", "runserver", "0.0.0.0:$PORT"]
+CMD python manage.py runserver 0.0.0.0:${PORT:-8000}

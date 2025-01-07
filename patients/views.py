@@ -111,6 +111,11 @@ class DiagnosisListCreateView(generics.ListCreateAPIView):
 
     def analyze_echo(self, diagnosis):
         try:
+            tf.config.set_visible_devices([], 'GPU')
+            os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+            os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
+            os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+
             default_view = 'a4c'
 
             s3 = boto3.client(
@@ -130,7 +135,14 @@ class DiagnosisListCreateView(generics.ListCreateAPIView):
             except Exception as e:
                 raise Exception(f"Failed to download model from S3: {str(e)}")
 
-            base_model = VGG16(weights='imagenet', include_top=False, input_shape=(224, 224, 3))
+            cache_dir = '/tmp/.keras/models'
+            os.makedirs(cache_dir, exist_ok=True)
+
+            base_model = VGG16(
+                weights='imagenet',
+                include_top=False,
+                input_shape=(224, 224, 3)
+            )
             feature_extractor = Model(inputs=base_model.input, outputs=base_model.output)
 
             lstm_model = load_model(model_path)
@@ -176,31 +188,39 @@ class DiagnosisListCreateView(generics.ListCreateAPIView):
             diagnosis.echocardiogram.close()
 
     def extract_video_features(self, video_path, feature_extractor, sequence_length=30, interval=1):
-        cap = cv2.VideoCapture(video_path)
-        frame_features = []
-        count = 0
+        try:
+            cap = cv2.VideoCapture(video_path)
+            frame_features = []
+            count = 0
 
-        while cap.isOpened() and len(frame_features) < sequence_length:
-            ret, frame = cap.read()
-            if not ret:
-                break
+            while cap.isOpened() and len(frame_features) < sequence_length:
+                ret, frame = cap.read()
+                if not ret:
+                    break
 
-            if count % interval == 0:
-                frame = cv2.resize(frame, (224, 224))
-                frame = np.expand_dims(frame, axis=0)
-                frame = tf.keras.applications.vgg16.preprocess_input(frame)
+                if count % interval == 0:
+                    frame = cv2.resize(frame, (224, 224))
+                    frame = np.expand_dims(frame, axis=0)
+                    frame = tf.keras.applications.vgg16.preprocess_input(frame)
 
-                features = feature_extractor.predict(frame)
-                frame_features.append(features[0])
+                    features = feature_extractor.predict(frame, batch_size=1)
+                    frame_features.append(features[0])
 
-            count += 1
+                    # Clear memory
+                    tf.keras.backend.clear_session()
 
-        cap.release()
+                count += 1
 
-        while len(frame_features) < sequence_length:
-            frame_features.append(np.zeros_like(frame_features[0]))
+            cap.release()
 
-        return np.array(frame_features)
+            # Pad sequence if needed
+            while len(frame_features) < sequence_length:
+                frame_features.append(np.zeros_like(frame_features[0]))
+
+            return np.array(frame_features)
+        except Exception as e:
+            print(f"Error in extract_video_features: {str(e)}")
+            raise
 
     def process_demographic_data(self, demographic_data, volume_tracings, view):
         height_m = demographic_data['height'] / 100

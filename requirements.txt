@@ -2,6 +2,8 @@ absl-py==2.1.0
 asgiref==3.8.1
 astunparse==1.6.3
 attrs==24.3.0
+boto3==1.35.93
+botocore==1.35.93
 certifi==2024.12.14
 charset-normalizer==3.4.1
 dj-database-url==2.3.0
@@ -18,6 +20,7 @@ h5py==3.12.1
 idna==3.10
 inflection==0.5.1
 iniconfig==2.0.0
+jmespath==1.0.1
 jsonschema==4.23.0
 jsonschema-specifications==2024.10.1
 keras==3.7.0
@@ -49,6 +52,7 @@ referencing==0.35.1
 requests==2.32.3
 rich==13.9.4
 rpds-py==0.22.3
+s3transfer==0.10.4
 setuptools==75.6.0
 six==1.17.0
 sqlparse==0.5.3

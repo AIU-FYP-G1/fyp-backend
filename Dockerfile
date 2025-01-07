@@ -1,13 +1,4 @@
 # Build stage
-FROM python:3.12.3 AS builder
-
-# Install git-lfs in builder stage
-RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash && \
-    apt-get update && \
-    apt-get install git-lfs && \
-    git lfs install
-
-# Final stage
 FROM python:3.12.3
 
 # Install only OpenCV dependencies

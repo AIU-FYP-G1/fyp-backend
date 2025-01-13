@@ -1,7 +1,9 @@
+import json
 import os
 import random
 import time
 
+import requests
 import numpy as np
 import pandas as pd
 from rest_framework import generics, permissions
@@ -112,82 +114,121 @@ class DiagnosisListCreateView(generics.ListCreateAPIView):
 
     def analyze_echo(self, diagnosis):
         try:
-            # tf.config.set_visible_devices([], 'GPU')
-            # os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
-            # os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
-            # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
-            #
-            # default_view = 'a4c'
-            #
-            # s3 = boto3.client(
-            #     's3',
-            #     region_name='us-east-1',
-            #     aws_access_key_id='AKIA4XKCFOLNNFAMKCEL',
-            #     aws_secret_access_key='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'
-            # )
-            #
-            # model_path = f'/tmp/{default_view}_model.keras'
-            # try:
-            #     s3.download_file(
-            #         'fyp-models',
-            #         f'{default_view}_model.keras',
-            #         model_path
-            #     )
-            # except Exception as e:
-            #     raise Exception(f"Failed to download model from S3: {str(e)}")
-            #
-            # cache_dir = '/tmp/.keras/models'
-            # os.makedirs(cache_dir, exist_ok=True)
-            #
-            # base_model = VGG16(
-            #     weights='imagenet',
-            #     include_top=False,
-            #     input_shape=(224, 224, 3)
-            # )
-            # feature_extractor = Model(inputs=base_model.input, outputs=base_model.output)
-            #
-            # lstm_model = load_model(model_path)
-            #
-            # demo_data = {
-            #     'age': diagnosis.patient.get_age(),
-            #     'weight': diagnosis.patient.weight if diagnosis.patient.weight else 70,
-            #     'height': diagnosis.patient.height if diagnosis.patient.height else 180,
-            # }
-            #
-            # volume_tracings = pd.DataFrame({
-            #     'X': np.random.normal(100, 10, 100),
-            #     'Y': np.random.normal(100, 10, 100)
-            # })
-            #
-            # video_features = self.extract_video_features(
-            #     diagnosis.echocardiogram.path,
-            #     feature_extractor
-            # )
-            #
-            # demographic_features = self.process_demographic_data(
-            #     demo_data,
-            #     volume_tracings,
-            #     default_view
-            # )
-            #
-            # combined_input = {
-            #     'input_layer': np.expand_dims(video_features, axis=0),
-            #     'input_layer_1': np.expand_dims(demographic_features, axis=0)
-            # }
-            #
-            # ejection_fraction = lstm_model.predict(combined_input)
-            # diagnosis.ejection_fraction = int(ejection_fraction[0][0])
-            diagnosis.ejection_fraction = self.get_random_ef()
-            diagnosis.save()
-            #
-            # if os.path.exists(model_path):
-            #     os.remove(model_path)
+            API_URL = "https://5a1c-124-13-17-173.ngrok-free.app/predict"
 
+            files = {
+                'video': diagnosis.echocardiogram.file
+            }
+
+            demo_data = {
+                'age': diagnosis.patient.get_age(),
+                'weight': diagnosis.patient.weight if diagnosis.patient.weight else 70,
+                'height': diagnosis.patient.height if diagnosis.patient.height else 180,
+            }
+
+            data = {
+                'view': diagnosis.view_type,
+                'demographic_data': json.dumps(demo_data),
+            }
+
+            response = requests.post(API_URL, files=files, data=data)
+
+            if response.status_code == 200:
+                result = response.json()
+                print(result)
+                diagnosis.ejection_fraction = result['ef_prediction']
+                diagnosis.save()
+            else:
+                error_message = response.json().get('detail', 'Unknown error')
+                raise Exception(f"API Error: {error_message}")
+
+        except requests.RequestException as e:
+            print(f"Error calling inference API: {str(e)}")
+            raise
         except Exception as e:
             print(f"Error in analyze_echo: {str(e)}")
             raise
         finally:
             diagnosis.echocardiogram.close()
+
+    # def analyze_echo(self, diagnosis):
+    #     try:
+    #         # tf.config.set_visible_devices([], 'GPU')
+    #         # os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+    #         # os.environ['TF_FORCE_GPU_ALLOW_GROWTH'] = 'true'
+    #         # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+    #         #
+    #         # default_view = 'a4c'
+    #         #
+    #         # s3 = boto3.client(
+    #         #     's3',
+    #         #     region_name='us-east-1',
+    #         #     aws_access_key_id='AKIA4XKCFOLNNFAMKCEL',
+    #         #     aws_secret_access_key='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'
+    #         # )
+    #         #
+    #         # model_path = f'/tmp/{default_view}_model.keras'
+    #         # try:
+    #         #     s3.download_file(
+    #         #         'fyp-models',
+    #         #         f'{default_view}_model.keras',
+    #         #         model_path
+    #         #     )
+    #         # except Exception as e:
+    #         #     raise Exception(f"Failed to download model from S3: {str(e)}")
+    #         #
+    #         # cache_dir = '/tmp/.keras/models'
+    #         # os.makedirs(cache_dir, exist_ok=True)
+    #         #
+    #         # base_model = VGG16(
+    #         #     weights='imagenet',
+    #         #     include_top=False,
+    #         #     input_shape=(224, 224, 3)
+    #         # )
+    #         # feature_extractor = Model(inputs=base_model.input, outputs=base_model.output)
+    #         #
+    #         # lstm_model = load_model(model_path)
+    #         #
+    #         # demo_data = {
+    #         #     'age': diagnosis.patient.get_age(),
+    #         #     'weight': diagnosis.patient.weight if diagnosis.patient.weight else 70,
+    #         #     'height': diagnosis.patient.height if diagnosis.patient.height else 180,
+    #         # }
+    #         #
+    #         # volume_tracings = pd.DataFrame({
+    #         #     'X': np.random.normal(100, 10, 100),
+    #         #     'Y': np.random.normal(100, 10, 100)
+    #         # })
+    #         #
+    #         # video_features = self.extract_video_features(
+    #         #     diagnosis.echocardiogram.path,
+    #         #     feature_extractor
+    #         # )
+    #         #
+    #         # demographic_features = self.process_demographic_data(
+    #         #     demo_data,
+    #         #     volume_tracings,
+    #         #     default_view
+    #         # )
+    #         #
+    #         # combined_input = {
+    #         #     'input_layer': np.expand_dims(video_features, axis=0),
+    #         #     'input_layer_1': np.expand_dims(demographic_features, axis=0)
+    #         # }
+    #         #
+    #         # ejection_fraction = lstm_model.predict(combined_input)
+    #         # diagnosis.ejection_fraction = int(ejection_fraction[0][0])
+    #         diagnosis.ejection_fraction = self.get_random_ef()
+    #         diagnosis.save()
+    #         #
+    #         # if os.path.exists(model_path):
+    #         #     os.remove(model_path)
+    #
+    #     except Exception as e:
+    #         print(f"Error in analyze_echo: {str(e)}")
+    #         raise
+    #     finally:
+    #         diagnosis.echocardiogram.close()
 
     def get_random_ef(self):
         time.sleep(4)

@@ -4,18 +4,8 @@ import random
 import time
 
 import requests
-import numpy as np
-import pandas as pd
 from rest_framework import generics, permissions
 from rest_framework.parsers import MultiPartParser, FormParser
-import boto3
-
-import numpy as np
-import tensorflow as tf
-from keras import Model
-from keras.src.applications.vgg16 import VGG16
-from keras.src.saving import load_model
-import cv2
 
 from patients.models import Patient, Diagnosis, Interpretation
 from patients.serializers import PatientSerializer, DiagnosisSerializer

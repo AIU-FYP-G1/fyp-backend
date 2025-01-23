@@ -104,7 +104,7 @@ class DiagnosisListCreateView(generics.ListCreateAPIView):
 
     def analyze_echo(self, diagnosis):
         try:
-            API_URL = "https://4891-124-13-17-173.ngrok-free.app/predict"
+            API_URL = "https://fe60-124-13-17-173.ngrok-free.app/predict"
 
             files = {
                 'video': diagnosis.echocardiogram.file
